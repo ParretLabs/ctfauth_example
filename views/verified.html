@@ -1,0 +1,11 @@
+
+<span id="data">Fetching data...</span>
+
+<script>
+  const textSpan = document.getElementById("data");
+  const [profileID, animal] = atob(location.hash.slice(1)).split("|");
+  
+  fetch("https://tagpro.koalabeast.com/profiles/" + profileID).then(a => a.json()).then(data => {
+    textSpan.innerText = `Hi ${data.reservedName}, your favorite animal is ${animal}! That's pretty cool!`;
+  });
+</script>
