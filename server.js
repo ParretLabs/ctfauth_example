@@ -3,6 +3,7 @@
 
 // we've started you off with Express (https://expressjs.com/)
 // but feel free to use whatever libraries or frameworks you'd like through `package.json`.
+require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const fetch = require("node-fetch");
@@ -21,6 +22,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// Track users data as they verify
 let verificationMap = {};
 
 // make all the files in 'public' available
@@ -39,10 +41,10 @@ app.get("/verified", (request, response) => {
 // This endpoint has been set as the callback URL in the Settings Panel.
 app.post("/callback", (request, response) => {
 	console.log(request.body);
-	if(request.body.verified && request.body.apiKey === process.env.API_KEY) {
+	if(request.body.verified && request.body.apiSecret === process.env.API_SECRET) {
 		// Send back the users profileID and their favorite animal.
 		response.json({
-			redirectURL: "http://parretlabs.xyz:8015/#" + Buffer.from(request.body.profileID + "|" + verificationMap[request.body.verificationToken]).toString('base64')
+			redirectURL: "http://parretlabs.xyz:8015/verified#" + Buffer.from(request.body.profileID + "|" + verificationMap[request.body.verificationToken]).toString('base64')
 		});
 	}
 });
@@ -51,7 +53,7 @@ app.post("/callback", (request, response) => {
 app.post("/verify", (request, response) => {
 	if(request.body.animal) {
 		request.body.animal = String(request.body.animal).slice(0, 50);
-		fetch("https://ctfauth.herokuapp.com/api/v1/generate_verification_link", {
+		fetch(process.env.API_URL + "/api/v2/generate_verification_link", {
 			method: "POST",
 			headers: {
 				"Authorization": "Basic " + process.env.API_KEY
